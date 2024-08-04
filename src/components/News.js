@@ -10,6 +10,24 @@ export class News extends Component {
     category: 'general',
   };
 
+  static getDerivedStateFromProps(nextProps, prevState) {
+    if (nextProps.category !== prevState.prevCategory || nextProps.country !== prevState.prevCountry) {
+      return {
+        page: 1,
+        prevCategory: nextProps.category,
+        prevCountry: nextProps.country,
+      };
+    }
+    return null;
+  }
+  
+  componentDidUpdate(prevProps, prevState) {
+    if (this.state.page === 1 && (this.state.prevCategory !== prevProps.category || this.state.prevCountry !== prevProps.country)) {
+      this.updateNews();
+      document.title = `${this.capitalizeFirstLetter(this.props.category)} - NewsMonkey`;
+    }
+  }
+  
   static propTypes = {
     country: PropTypes.string,
     pageSize: PropTypes.number,
@@ -46,12 +64,13 @@ export class News extends Component {
     this.updateNews();
   }
 
-  async componentDidUpdate(prevProps) {
-    if (this.props.category !== prevProps.category || this.props.country !== prevProps.country) {
-      this.setState({ page: 1 }, this.updateNews);
-      document.title = `${this.capitalizeFirstLetter(this.props.category)} - NewsMonkey`;
-    }
-  }
+  // async componentDidUpdate(prevProps) {
+  //   if (this.props.category !== prevProps.category || this.props.country !== prevProps.country) {
+  //     this.setState({ page: 1 }, this.updateNews);
+  //     console.log("Category changed from", prevProps.category, "to", this.props.category);
+  //     document.title = `${this.capitalizeFirstLetter(this.props.category)} - NewsMonkey`;
+  //   }
+  // }
 
   handlePrevClick = async () => {
     this.setState({ page: this.state.page - 1 }, this.updateNews);
